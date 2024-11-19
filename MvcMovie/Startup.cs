@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using MvcMovie.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+
+
 
 public class Startup
 {
@@ -19,7 +21,7 @@ public class Startup
     {
         // Cấu hình DbContext với chuỗi kết nối từ appsettings.json
         services.AddDbContext<MvcMovieContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));  // Sửa lại tên chuỗi kết nối
+            options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));  // Đảm bảo tên chuỗi kết nối đúng
 
         // Thêm dịch vụ MVC
         services.AddControllersWithViews();
@@ -48,7 +50,7 @@ public class Startup
         {
             endpoints.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");  // Đảm bảo rằng route này có controller Home tồn tại
         });
 
         // Kiểm tra và thêm dữ liệu mẫu nếu cần thiết
