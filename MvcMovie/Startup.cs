@@ -1,61 +1,85 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MvcMovie.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-
-
-
-public class Startup
+﻿namespace MvcMovie
 {
-    public IConfiguration Configuration { get; }
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using MvcMovie.Models;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using System;
 
-    public Startup(IConfiguration configuration)
+    public class Startup
     {
-        Configuration = configuration;
-    }
+        public IConfiguration Configuration { get; }
 
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Cấu hình DbContext với chuỗi kết nối từ appsettings.json
-        services.AddDbContext<MvcMovieContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));  // Đảm bảo tên chuỗi kết nối đúng
-
-        // Thêm dịch vụ MVC
-        services.AddControllersWithViews();
-    }
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
+        public Startup(IConfiguration configuration)
         {
-            app.UseDeveloperExceptionPage();
-        }
-        else
-        {
-            app.UseExceptionHandler("/Home/Error");
-            app.UseHsts();
+            Configuration = configuration;
         }
 
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
-
-        app.UseRouting();
-
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
+        public void ConfigureServices(IServiceCollection services)
         {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");  // Đảm bảo rằng route này có controller Home tồn tại
-        });
+            // Cấu hình DbContext với chuỗi kết nối từ appsettings.json
+            services.AddDbContext<MvcMovieContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));
 
-        // Kiểm tra và thêm dữ liệu mẫu nếu cần thiết
-        var scope = app.ApplicationServices.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<MvcMovieContext>();
-        SeedData.Initialize(scope.ServiceProvider, context);  // Gọi đúng phương thức SeedData.Initialize
+            // Thêm dịch vụ MVC
+            services.AddControllersWithViews();
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+            // Kiểm tra kết nối cơ sở dữ liệu
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<MvcMovieContext>();
+                try
+                {
+                    if (context.Database.CanConnect())
+                    {
+                        logger.LogInformation("Kết nối cơ sở dữ liệu thành công!");
+                    }
+                    else
+                    {
+                        logger.LogWarning("Không thể kết nối cơ sở dữ liệu.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Kết nối cơ sở dữ liệu thất bại: {ex.Message}");
+                }
+            }
+
+            // Kiểm tra và thêm dữ liệu mẫu nếu cần thiết
+            var scopeData = app.ApplicationServices.CreateScope();
+            var contextData = scopeData.ServiceProvider.GetRequiredService<MvcMovieContext>();
+            SeedData.Initialize(scopeData.ServiceProvider, contextData);
+        }
     }
 }

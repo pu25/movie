@@ -1,31 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 
-public class HomeController : Controller
+namespace MvcMovie.Controllers
 {
-    public IActionResult Index()
+    public class HomeController : Controller
     {
-        Console.WriteLine("abc");
-        return View();
-    }
-
-    public IActionResult About()
-    {
-        Console.WriteLine("abc");
-        ViewData["Message"] = "Your application description page.";
-
-        return View();
-    }
-
-    public IActionResult Contact()
-    {
-        ViewData["Message"] = "Your contact page.";
-
-        return View();
-    }
-
-    public IActionResult Error()
-    {
-        return View();
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 }

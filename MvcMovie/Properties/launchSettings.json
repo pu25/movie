@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:52347/", // Thay đổi cổng tại đây
-      "sslPort": 0
+      "applicationUrl": "http://localhost:52347/", // Cổng HTTP của IIS
+      "sslPort": 44300 // Cổng SSL cho IIS
     }
   },
   "profiles": {
@@ -16,12 +16,11 @@
       }
     },
     "MvcMovie": {
-      "commandName": "Project",
+      "commandName": "IIS",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:52347" // Đảm bảo profile MvcMovie cũng sử dụng cổng 52347
+      }
     }
   }
 }
